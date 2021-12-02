@@ -100,9 +100,21 @@ We can use automated snapshots of the instances as the backup option
 
 # Adding Contact Point
 
-Since with latest release Notification channel is replaced by Contact point
+Since with latest release Notification channel is replaced by Contact point. So the automation part for Notification channel creation is not working. 
 
-To create a new Contact point,
+Notification channel automation using Ansible grafana role.
+- name: Slack notification channel
+  community.grafana.grafana_notification_channel:
+    uid: slack
+    name: slack
+    type: slack
+    slack_url:  https://hooks.slack.com/services/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
+    grafana_url: "http://127.0.0.1:3000"
+    grafana_user: "admin"
+    grafana_password: "{{ admin_password }}"
+  notify: restart grafana
+
+To create a new Contact point manuly,
 
  1. Navigate to Alerting menu 
  2. Select Contact points tab and go to New contact point option

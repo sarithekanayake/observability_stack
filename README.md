@@ -74,4 +74,6 @@ Wait until deployment completes, using Public IP address of Monitoring Node,
 Use `admin` and `test123` as the credentials to log into Grafana Frontend.
 
 **To view dashboard**,
-Menu -> Dashboards -> Browse -> Select Node Export Full 
+Menu -> Dashboards -> Browse -> Select "Node Exporter Full" 
+
+We are using [Grafana Dashboards](https://github.com/rfrail3/grafana-dashboards) as the dashboard template

@@ -11,10 +11,9 @@ Mainly it has two parts,
 Deploy 4 servers in AWS cloud using AWS CloudFormation templates
 
 Setup as follows,
-|**Server**    |**Description**  |
-|Master     | Act as the management server - Ansible playbooks will run on this server|
-|Monitoring  | Grafana and Prometheus and Node exporter running on this |
-| Workers|	Runs only Node Exporter| 
+**Master**  : Act as the management server - Ansible playbooks will run on this server
+**Monitoring** : Grafana and Prometheus and Node exporter running on this 
+**Workers**	: Runs only Node Exporter
 
 ## Pre-requisite
 In host machine,

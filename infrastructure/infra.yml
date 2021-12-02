@@ -1,0 +1,312 @@
+---
+Parameters:
+  SSHKey:
+    Description:  Name of an existing EC2 KeyPair to enable SSH access to the instances. 
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription:  Must be the name of an existing EC2 KeyPair.
+
+  s3bucketname:
+    Description:  Name for S3 bucket to hold miscellaneous files 
+    Type: String
+
+Resources:
+
+#VPC Creation with Public subnets
+
+  PipeDriveVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock:  10.0.0.0/16
+      Tags:
+        - Key:  Name
+          Value:  !Sub  ${AWS::StackName}-VPC
+
+  PublicSub01:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock:  10.0.1.0/24
+      MapPublicIpOnLaunch:  True
+      AvailabilityZone: !Select [0, Fn::GetAZs: !Ref  'AWS::Region']
+      VpcId:  !Ref  PipeDriveVPC
+      Tags:
+        - Key:  Name
+          Value:  10.0.1.0-Public01
+  
+  PublicSub02:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock:  10.0.2.0/24
+      MapPublicIpOnLaunch:  True
+      AvailabilityZone: !Select [1, Fn::GetAZs: !Ref  'AWS::Region']
+      VpcId:  !Ref  PipeDriveVPC
+      Tags:
+        - Key:  Name
+          Value:  10.0.2.0-Public02
+
+  PublicSub03:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock:  10.0.3.0/24
+      MapPublicIpOnLaunch:  True
+      AvailabilityZone: !Select [2, Fn::GetAZs: !Ref  'AWS::Region']
+      VpcId:  !Ref  PipeDriveVPC
+      Tags:
+        - Key:  Name
+          Value:  10.0.3.0-Public03
+
+#IG configuration and attachment
+
+  PipeDriveIGW:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key:  Name
+          Value:  !Sub  ${AWS::StackName}-IGW
+
+  VpcIgwAttchment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:  !Ref  PipeDriveVPC
+      InternetGatewayId:  !Ref  PipeDriveIGW
+
+#Route Table Configurations 
+
+  PubRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key:  Name
+          Value:  PubRoute
+      VpcId:  !Ref  PipeDriveVPC
+
+#Subnet to Route Table associations
+
+  SubnetRouteAss01:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref  PubRouteTable
+      SubnetId: !Ref  PublicSub01
+
+  SubnetRouteAss02:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref  PubRouteTable
+      SubnetId: !Ref  PublicSub02
+
+  SubnetRouteAss03:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref  PubRouteTable
+      SubnetId: !Ref  PublicSub03
+
+#Route Configurations
+
+  IGRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock:  0.0.0.0/0
+      GatewayId: !Ref PipeDriveIGW
+      RouteTableId: !Ref  PubRouteTable
+
+#Security Groups
+
+  MasterNodeSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SG for control node
+      GroupName:  MasterNodeSG
+      VpcId:  !Ref  PipeDriveVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+  MonitoringSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SG for Monitoring instances
+      GroupName:  MonitoringSG
+      VpcId:  !Ref  PipeDriveVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9100
+          ToPort: 9100
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9090
+          ToPort: 9090
+          CidrIp: 0.0.0.0/0
+
+  WorkerNodeSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SG for Node Exporter instances
+      GroupName:  WorkerNodeSG
+      VpcId:  !Ref  PipeDriveVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9100
+          ToPort: 9100
+          CidrIp: 0.0.0.0/0
+
+#Master Node
+#RHEL8 - ami-0ba62214afa52bec7
+  MasterNode:
+    Type: AWS::EC2::Instance
+    Properties:
+      IamInstanceProfile: !Ref  s3bucketprofile
+      InstanceType: t2.micro
+      ImageId:  "ami-0ba62214afa52bec7"
+      KeyName:  !Ref  SSHKey
+      SubnetId: !Ref  PublicSub01
+      SecurityGroupIds:
+        - !GetAtt  MasterNodeSG.GroupId
+      Tags:
+        - Key:  Name
+          Value:  MasterNode
+      UserData:
+        Fn::Base64: !Sub |
+           #!/bin/bash
+           yum -y update
+           yum -y install vim
+           yum -y install wget
+           cd /tmp/
+           wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+           yum -y install epel-release-latest-8.noarch.rpm
+           yum -y install ansible
+           sudo su - ec2-user
+           sudo yum -y install git
+           ssh-keygen -q -t rsa -N '' -C 'ec2-user' -f ~/.ssh/id_rsa <<<y >/dev/nul 2>&1
+           sudo yum -y install unzip
+           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+           unzip awscliv2.zip
+           sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update 
+           aws s3 cp ~/.ssh/id_rsa.pub s3://${s3bucketname}
+           mv ~/.ssh/id_rsa.pub ~/.ssh/id_rsa /home/ec2-user/.ssh/
+           sudo chown ec2-user:ec2-user id_rsa*
+           git clone 
+
+#Monitoring Node
+  MonitoringNode:
+    Type: AWS::EC2::Instance
+    Properties:
+      IamInstanceProfile: !Ref  s3bucketprofile
+      InstanceType: t2.micro
+      ImageId:  "ami-0ba62214afa52bec7"
+      KeyName:  !Ref  SSHKey
+      SubnetId: !Ref  PublicSub02
+      SecurityGroupIds:
+        - !GetAtt  MonitoringSG.GroupId
+      Tags:
+        - Key:  Name
+          Value:  Monitoring
+      UserData:
+        Fn::Base64: !Sub |
+           #!/bin/bash
+           yum -y update
+           yum -y install vim
+           yum -y install wget
+           sudo su - ec2-user
+           cd /tmp/
+           sudo yum install unzip -y
+           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+           unzip awscliv2.zip
+           sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+           sleep 5m
+           aws s3 cp s3://${s3bucketname}/id_rsa.pub /tmp/
+           cat /tmp/id_rsa.pub >>  /home/ec2-user/.ssh/authorized_keys
+
+#Worker Nodes using Launch Configuration with AutoScaling
+
+  LaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      LaunchConfigurationName:  Observability stack
+      InstanceType: t2.micro
+      ImageId:  "ami-0ba62214afa52bec7"
+      KeyName:  !Ref  SSHKey
+      IamInstanceProfile: !Ref  s3bucketprofile
+      SecurityGroups:
+        - !Ref  WorkerNodeSG    
+      UserData:
+        Fn::Base64: !Sub |
+           #!/bin/bash
+           yum -y update 
+           yum -y install vim
+           yum -y install wget
+           sudo su - ec2-user
+           cd /tmp/
+           sudo yum install unzip -y
+           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+           unzip awscliv2.zip
+           sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+           sleep 5m
+           aws s3 cp s3://${s3bucketname}/id_rsa.pub /tmp/
+           cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys
+           
+  AutoScaling:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: AutoScalingGroup
+      VPCZoneIdentifier:
+        - !Ref  PublicSub01
+        - !Ref  PublicSub02
+      LaunchConfigurationName: !Ref  LaunchConfig
+      DesiredCapacity:  '2'
+      MinSize:  '2'
+      MaxSize:  '2'
+
+#S3 Buckets
+  s3bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${s3bucketname}
+    DependsOn: 
+      - MasterNode
+     
+#IAM roles creation
+
+  s3bucketprofile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref  S3WritableRole
+
+  S3WritableRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version:  2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:  ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+
+  RolePolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: ec2tos3instancepolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: 's3:*'
+            Resource: '*'
+      Roles:
+        - !Ref  S3WritableRole

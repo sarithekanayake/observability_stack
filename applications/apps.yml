@@ -1,0 +1,15 @@
+---
+- name: Install node-exporter on all servers
+  hosts:  all
+  remote_user:  ec2-user
+  become: true
+  roles:
+    - node-exporter
+
+- name: Install monitoring tools
+  hosts:  monitoring
+  remote_user:  ec2-user
+  become: true
+  roles:
+    - prometheus
+    - grafana

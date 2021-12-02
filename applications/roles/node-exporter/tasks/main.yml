@@ -1,0 +1,39 @@
+---
+- name: create user
+  user:
+    name: "{{ user  }}"
+    append: true
+    shell:  /usr/sbin/nologin
+    system: true
+    create_home:  false
+
+- name: configuration directory
+  file:
+    path: "{{ configurations  }}"
+    state:  directory
+    owner:  "{{ user  }}"
+    group:  "{{ group }}"
+
+- name: download binary and unzip
+  unarchive:
+    src:  "https://github.com/prometheus/node_exporter/releases/download/v{{  version }}/node_exporter-{{  version }}.linux-amd64.tar.gz"
+    dest: /tmp/
+    remote_src: true
+
+- name: copy node exporter binary to bin directory
+  copy:
+    src:  "/tmp/node_exporter-{{ version }}.linux-amd64/node_exporter"
+    dest: "{{ path  }}"
+    owner:  "{{ user  }}"
+    group:  "{{ group }}"
+    mode: 0755
+    remote_src: true
+
+- name: create service file
+  template:
+    src:  node_exporter.service.j2
+    dest: /etc/systemd/system/node_exporter.service
+    owner:  root
+    group:  root
+    mode: 0755
+  notify: restart node exporter

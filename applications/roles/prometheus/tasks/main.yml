@@ -1,0 +1,80 @@
+---
+- name: create user
+  user:
+    name: "{{ user  }}"
+    append: true
+    shell:  /bin/false
+    create_home:  false
+
+- name: configuration directory
+  file:
+    path: "{{ configurations  }}"
+    state:  directory
+    owner:  "{{ user  }}"
+    group:  "{{ group }}"
+
+- name: lib directory
+  file:
+    path: "{{ lib_path  }}"
+    state:  directory
+    owner:  "{{ user  }}"
+    group:  "{{ group }}"
+
+- name: download binary and unzip
+  unarchive:
+    src:  "https://github.com/prometheus/prometheus/releases/download/v{{ version }}/prometheus-{{ version }}.linux-amd64.tar.gz"
+    dest: /tmp/
+    remote_src: true
+
+- name: copy prometheus binary to bin directory
+  copy:
+    src:  "/tmp/prometheus-{{ version }}.linux-amd64/prometheus"
+    dest: "{{ path  }}"
+    owner:  "{{ user  }}"
+    group:  "{{ group }}"
+    mode: 0755
+    remote_src: true
+
+- name: copy promtool binary to bin directory
+  copy:
+    src:  "/tmp/prometheus-{{ version }}.linux-amd64/promtool"
+    dest: "{{ path  }}"
+    owner:  "{{ user  }}"
+    group:  "{{ group }}"
+    mode: 0755
+    remote_src: true
+
+- name: copy consoles folder to etc
+  copy:
+    src:  "/tmp/prometheus-{{ version }}.linux-amd64/consoles"
+    dest: "{{ configurations }}"
+    owner:  "{{ user  }}"
+    group:  "{{ group }}"
+    mode: 0755
+    remote_src: true
+
+- name: copy console libraries dir to etc
+  copy:
+    src:  "/tmp/prometheus-{{ version }}.linux-amd64/console_libraries"
+    dest: "{{ configurations  }}"
+    owner:  "{{ user  }}"
+    group:  "{{ group }}"
+    mode: 0755
+    remote_src: true
+
+- name: prometheus.yaml configuration file creation
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ configurations }}/prometheus.yml"
+    mode: 0755
+    owner:  "{{ user  }}"
+    group:  "{{ group  }}"
+
+- name: create service file
+  template:
+    src:  prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+    owner:  root
+    group:  root
+    mode: 0755
+  notify: restart prometheus

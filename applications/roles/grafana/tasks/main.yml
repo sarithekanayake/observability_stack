@@ -1,0 +1,50 @@
+---
+- name: add grafana repo via yum
+  yum_repository:
+    name: grafana
+    description:  Grafana repo
+    baseurl:  https://packages.grafana.com/oss/rpm
+    repo_gpgcheck:  true
+    enabled:  true
+    gpgcheck: true
+    gpgkey: https://packages.grafana.com/gpg.key
+    sslverify:  true
+    sslcacert:  /etc/pki/tls/certs/ca-bundle.crt
+    state:  present
+
+- name: install grafana
+  yum:
+    name: grafana
+    state:  latest
+    update_cache: true
+
+- name: start service grafana-server
+  service:
+    name: grafana-server
+    state: started
+    enabled:  true
+
+- name: reset admin passwd
+  shell : "grafana-cli admin reset-admin-password {{ admin_password }}"
+
+- name: prometheus datasource
+  grafana_datasource:
+    name: "prometheus-ds"
+    grafana_url: "http://127.0.0.1:3000"
+    grafana_user: "admin"
+    grafana_password: "{{ admin_password }}"
+    ds_type: "prometheus"
+    ds_url: "http://127.0.0.1:9090"
+
+- name: dashboard template download
+  get_url:
+    url: https://raw.githubusercontent.com/rfrail3/grafana-dashboards/master/prometheus/node-exporter-full.json
+    dest: /var/lib/grafana/node-exporter.json
+    mode: '0755'
+
+- name: dashboard deploy
+  template:
+    src: dashboard.yml.j2
+    dest: /etc/grafana/provisioning/dashboards/dashboard.yml
+    mode: 0755
+  notify: restart grafana

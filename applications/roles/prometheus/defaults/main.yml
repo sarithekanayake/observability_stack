@@ -1,0 +1,9 @@
+---
+version:  "2.31.1"
+configurations: "/etc/prometheus"
+path: "/usr/local/bin"
+lib_path: "/var/lib/prometheus"
+user: "prometheus"
+group:  "prometheus"
+scrape_interval:  "10s"
+host_group:  "all"

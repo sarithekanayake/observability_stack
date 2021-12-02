@@ -100,4 +100,4 @@ We can use automated snapshots of the instances as the backup option
 
 # Adding Notification channel
 
-Since in latest release Notification channel is replaced by Contact point. To do the automation we have picked 8.1.0 version to deploy.
+Since in latest release Notification channel is replaced by Contact point. To do the automation we have picked Grafana 8.1.0 version to deploy.

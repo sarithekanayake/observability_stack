@@ -28,6 +28,16 @@ On AWS Cloud,
  3. Create a SSH Key pair to use with EC2 instances 
  4. Download generated SSH Key pair to local machine
 
+On Slack,
+
+ 1. Create a new workspace for use with alerts
+ 2. Create an App and select build from scratch option
+ 3. Give a name, select newly created workspace to develop the app
+ 4. Navigate to incoming webhooks
+ 5. Switch on Active Incoming webhooks option
+ 6. Select Add new webhook to workspace and select the channel to post
+ 7. Copy the webhook link
+
 ## Steps to provision
 
  1. Setup credentials of user with `aws configure` command
@@ -87,3 +97,15 @@ We can simply use `aws cloudformation delete-stack --stack-name observability-st
 
 In AWS EC2 service we can use Amazon Data Lifecycle Manager option to automate the creation, retention, copy and deletion of snapshots and AMIs. 
 We can use automated snapshots of the instances as the backup option
+
+# Adding Contact Point
+
+Since with latest release Notification channel is replaced by Contact point
+
+To create a new Contact point,
+
+ 1. Navigate to Alerting menu 
+ 2. Select Contact points tab and go to New contact point option
+ 3. Give a name for Contact point and select Slack as the Contact point type 
+ 4. In Webhook URL add the webhook url which we get from slack in pre-requisites section
+ 5. Save contact point and click Test to send out a test alert

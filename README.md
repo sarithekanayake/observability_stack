@@ -82,3 +82,8 @@ We are using [Grafana Dashboards](https://github.com/rfrail3/grafana-dashboards)
 # Destory Infrastructure
 
 We can simply use `aws cloudformation delete-stack --stack-name observability-stack` to destroy the setup
+
+# Backup Procedure
+
+In AWS EC2 service we can use Amazon Data Lifecycle Manager option to automate the creation, retention, copy and deletion of snapshots and AMIs. 
+We can use automated snapshots of the instances as the backup option

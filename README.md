@@ -15,7 +15,7 @@ Setup as follows,
 **Monitoring** : Grafana and Prometheus and Node exporter running on this 
 **Workers**	: Runs only Node Exporter
 
-## Pre-requisite
+## Pre-requisites
 In host machine,
  1. Install Git
  2. Install [AWS Cli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html)
@@ -38,7 +38,7 @@ On AWS Cloud,
 In **step 4** command, we are passing two parameters,
  
 
- 1. SSHKey - Specify SSH Key Name we created in AWS Cloud Pre-requisite section
+ 1. SSHKey - Specify SSH Key Name we created in AWS Cloud Pre-requisites section
  2. S3 Bucket name - We are creating a S3 bucket to store miscellaneous items, provide an unique name 
 
 **Example**

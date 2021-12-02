@@ -197,7 +197,9 @@ Resources:
            aws s3 cp ~/.ssh/id_rsa.pub s3://${s3bucketname}
            mv ~/.ssh/id_rsa.pub ~/.ssh/id_rsa /home/ec2-user/.ssh/
            sudo chown ec2-user:ec2-user id_rsa*
-           git clone 
+           cd /home/ec2-user/
+           git clone https://github.com/sarithekanayake/observability_stack.git
+           sudo chown -R ec2-user:ec2-user /home/ec2-user
 
 #Monitoring Node
   MonitoringNode:

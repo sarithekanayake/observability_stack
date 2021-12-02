@@ -46,6 +46,7 @@ In **step 4** command, we are passing two parameters,
     aws cloudformation deploy --template-file infra.yml --stack-name observability-stack --parameter-overrides SSHKey=ec2sshkey s3bucketname=testbucketforpipedirvetest --capabilities CAPABILITY_NAMED_IAM
 
  **--capabilities CAPABILITY_NAMED_IAM** - We are creating IAM role in CF template. This is a must to pass with command to acknowledge IAM resource creation 
+**NB** We can use a different stack name instead using observability-stack 
 
 # Application Deployment
 
@@ -77,3 +78,7 @@ Use `admin` and `test123` as the credentials to log into Grafana Frontend.
 Menu -> Dashboards -> Browse -> Select "Node Exporter Full" 
 
 We are using [Grafana Dashboards](https://github.com/rfrail3/grafana-dashboards) as the dashboard template
+
+# Destory Infrastructure
+
+We can simply use `aws cloudformation delete-stack --stack-name observability-stack` to destroy the setup

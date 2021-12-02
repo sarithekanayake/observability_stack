@@ -1,16 +1,6 @@
 ---
-- name: add grafana repo via yum
-  yum_repository:
-    name: grafana
-    description:  Grafana repo
-    baseurl:  https://packages.grafana.com/oss/rpm
-    repo_gpgcheck:  true
-    enabled:  true
-    gpgcheck: true
-    gpgkey: https://packages.grafana.com/gpg.key
-    sslverify:  true
-    sslcacert:  /etc/pki/tls/certs/ca-bundle.crt
-    state:  present
+- name: add grafana 8.1.0 version instead of latest 8.3.0 to use with Notification channels
+  shell:  "cd /tmp/ ; wget https://dl.grafana.com/oss/release/grafana-8.1.0-1.x86_64.rpm ; sudo yum install -y grafana-8.1.0-1.x86_64.rpm"
 
 - name: install grafana
   yum:
@@ -47,4 +37,15 @@
     src: dashboard.yml.j2
     dest: /etc/grafana/provisioning/dashboards/dashboard.yml
     mode: 0755
+  notify: restart grafana
+
+- name: Slack notification channel
+  community.grafana.grafana_notification_channel:
+    uid: slack
+    name: slack
+    type: slack
+    slack_url:  https://hooks.slack.com/services/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
+    grafana_url: "http://127.0.0.1:3000"
+    grafana_user: "admin"
+    grafana_password: "{{ admin_password }}"
   notify: restart grafana

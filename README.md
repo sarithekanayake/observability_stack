@@ -98,26 +98,6 @@ We can simply use `aws cloudformation delete-stack --stack-name observability-st
 In AWS EC2 service we can use Amazon Data Lifecycle Manager option to automate the creation, retention, copy and deletion of snapshots and AMIs. 
 We can use automated snapshots of the instances as the backup option
 
-# Adding Contact Point
+# Adding Notification channel
 
-Since with latest release Notification channel is replaced by Contact point. So the automation part for Notification channel creation is not working. 
-
-Notification channel automation using Ansible grafana role.
-- name: Slack notification channel
-  community.grafana.grafana_notification_channel:
-    uid: slack
-    name: slack
-    type: slack
-    slack_url:  https://hooks.slack.com/services/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
-    grafana_url: "http://127.0.0.1:3000"
-    grafana_user: "admin"
-    grafana_password: "{{ admin_password }}"
-  notify: restart grafana
-
-To create a new Contact point manuly,
-
- 1. Navigate to Alerting menu 
- 2. Select Contact points tab and go to New contact point option
- 3. Give a name for Contact point and select Slack as the Contact point type 
- 4. In Webhook URL add the webhook url which we get from slack in pre-requisites section
- 5. Save contact point and click Test to send out a test alert
+Since in latest release Notification channel is replaced by Contact point. To do the automation we have picked 8.1.0 version to deploy.

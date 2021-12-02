@@ -24,10 +24,10 @@ In host machine,
 
 On AWS Cloud,
 
- 1. Create user with AWS Key access 
- 2. Need to have necessary privileges to run the templates (Admin)
- 3. Create a SSH Key to use with EC2 instances 
- 4. Download generated SSH Key to local machine
+ 1. Create user with Programmatic access (Access Key ID and Secret Access Key) using IAM service
+ 2. Attach necessary policies to run the CloudFromation templates (AdministratorAccess)
+ 3. Create a SSH Key pair to use with EC2 instances 
+ 4. Download generated SSH Key pair to local machine
 
 ## Steps to provision
 

@@ -68,7 +68,7 @@ Applications will be deployed using Anisble playbook
  4. Check cloud-init-output.log file to find instance configurations are completed `tail -f /var/log/cloud-init-output.log`
  5. Wait until all the configurations are completed
 
-On Master Node
+### On Master Node
  6. Navigate to ec2-user home directory `cd /home/ec2-user`
  7. Run `ansible-galaxy collection install community.grafana` command to install grafana community package for ansible
  8. Clone the repository `git clone https://github.com/sarithekanayake/observability_stack.git` to home dir in ec2-user

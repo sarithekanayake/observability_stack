@@ -71,11 +71,10 @@ Applications will be deployed using Anisble playbook
 ### On Master Node
  6. Navigate to ec2-user home directory `cd /home/ec2-user`
  7. Run `ansible-galaxy collection install community.grafana` command to install grafana community package for ansible
- 8. Clone the repository `git clone https://github.com/sarithekanayake/observability_stack.git` to home dir in ec2-user
- 9. Navigate to applications directory under observability_stack repo `cd applications` 
- 10. Edit inventory file and update the private IPs of servers `vim inventory`. Add Monitoring server IP to monitoring block. Add one of Worker Node IP to server1 and remaining one to server2 block.
- 11. Save the changes and exit `Press [ESC] and type :wq!`
- 12. Run the Ansible playbook replacing Slack URL `ansible-playbook apps.yml -e webhook_url=<Slack Webhook URL>`
+ 8. Navigate to applications directory under observability_stack repo `cd applications` 
+ 9. Edit inventory file and update the private IPs of servers `vim inventory`. Add Monitoring server IP to monitoring block. Add one of Worker Node IP to server1 and remaining one to server2 block.
+ 10. Save the changes and exit `Press [ESC] and type :wq!`
+ 11. Run the Ansible playbook replacing Slack URL `ansible-playbook apps.yml -e webhook_url=<Slack Webhook URL>`
 
 **Example**
 
@@ -91,9 +90,10 @@ Wait until deployment completes, using Public IP address of Monitoring Node,
 Use `admin` and `test123` as the credentials to log into Grafana Frontend.
 
 **To view dashboard**,
-Menu -> Dashboards -> Browse -> Select "Node Exporter Full" 
+Menu -> Dashboards -> Manage -> Select "Node Exporter Full" 
 
-We are using [Grafana Dashboards](https://github.com/rfrail3/grafana-dashboards) as the dashboard template
+We are using [Grafana Dashboards](https://github.com/rfrail3/grafana-dashboards) as the dashboard template.
+It will take sometime to load the metrics of servers
 
 # Destory Infrastructure
 
@@ -107,3 +107,4 @@ We can use automated snapshots of the instances as the backup option
 # Adding Notification channel
 
 Since in latest release Notification channel is replaced by Contact point. To do the automation we have picked Grafana 8.1.0 version to deploy.
+**To view dashboard**, Menu -> Alerting ->  Notification channels

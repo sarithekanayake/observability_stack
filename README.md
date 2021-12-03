@@ -63,17 +63,20 @@ In **step 4** command, we are passing two parameters,
 Applications will be deployed using Anisble playbook
 
  1. Navigate to AWS EC2 section on AWS Console
- 2. Get the Public IP address of Master Node
- 3. SSH into Master Node using SSH key `ssh -i <sshkey> ec2-user@<Public-IP>`
- 4. Check cloud-init-output.log file to find instance configuration complete `tail -f /var/log/cloud-init-output.log`
+ 2. Get the Public IP address of Master Node and Monitoring Node
+ 3. SSH into both of them using SSH key `ssh -i <sshkey> ec2-user@<Public-IP>`
+ 4. Check cloud-init-output.log file to find instance configurations are completed `tail -f /var/log/cloud-init-output.log`
  5. Wait until all the configurations are completed
- 6. Navigate to ec2-user home directory `cd /home/ec2-user`
- 7. Clone the repository `git clone https://github.com/sarithekanayake/observability_stack.git`
- 8. Navigate to applications directory under observability_stack repo `cd applications`
+ 6. Navigate to ec2-user home directory `cd /home/ec2-user` on Master Node
+ 7. Clone the repository `git clone https://github.com/sarithekanayake/observability_stack.git` to home dir in ec2-user
+ 8. Navigate to applications directory under observability_stack repo `cd applications` 
  9. Edit inventory file and update the private IPs of servers `vim inventory`. Add Monitoring server IP to monitoring block. Add one of Worker Node IP to server1 and remaining one to server2 block.
  10. Save the changes and exit `Press [ESC] and type :wq!`
- 11. Run the Ansible playbook `ansible-playbook apps.yml`
+ 11. Run the Ansible playbook replacing Slack URL `ansible-playbook apps.yml -e webhook_url=<Slack Webhook URL>`
 
+**Example**
+
+`ansible-playbook apps.yml -e webhook_url=https://hooks.slack.com/services/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`
 # Access Monitoring Stack
 
 Wait until deployment completes, using Public IP address of Monitoring Node,

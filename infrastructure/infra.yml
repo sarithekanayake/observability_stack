@@ -187,7 +187,6 @@ Resources:
            wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
            yum -y install epel-release-latest-8.noarch.rpm
            yum -y install ansible
-           ansible-galaxy collection install community.grafana
            sudo su - ec2-user 
            ansible-galaxy collection install community.grafana
            sudo yum -y install git

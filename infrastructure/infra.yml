@@ -188,10 +188,6 @@ Resources:
            yum -y install epel-release-latest-8.noarch.rpm
            yum -y install ansible
            sudo su - ec2-user 
-           ansible-galaxy collection install community.grafana
-           mkdir /home/ec2-user/.ansible
-           sudo cp -r /root/.ansible /home/ec2-user/.ansible
-           sudo chown -R  ec2-user:ec2-user /home/ec2-user/.ansbile
            sudo yum -y install git
            ssh-keygen -q -t rsa -N '' -C 'ec2-user' -f ~/.ssh/id_rsa <<<y >/dev/nul 2>&1
            sudo yum -y install unzip

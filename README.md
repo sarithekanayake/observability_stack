@@ -67,12 +67,15 @@ Applications will be deployed using Anisble playbook
  3. SSH into both of them using SSH key `ssh -i <sshkey> ec2-user@<Public-IP>`
  4. Check cloud-init-output.log file to find instance configurations are completed `tail -f /var/log/cloud-init-output.log`
  5. Wait until all the configurations are completed
- 6. Navigate to ec2-user home directory `cd /home/ec2-user` on Master Node
- 7. Clone the repository `git clone https://github.com/sarithekanayake/observability_stack.git` to home dir in ec2-user
- 8. Navigate to applications directory under observability_stack repo `cd applications` 
- 9. Edit inventory file and update the private IPs of servers `vim inventory`. Add Monitoring server IP to monitoring block. Add one of Worker Node IP to server1 and remaining one to server2 block.
- 10. Save the changes and exit `Press [ESC] and type :wq!`
- 11. Run the Ansible playbook replacing Slack URL `ansible-playbook apps.yml -e webhook_url=<Slack Webhook URL>`
+
+On Master Node
+ 6. Navigate to ec2-user home directory `cd /home/ec2-user`
+ 7. Run `ansible-galaxy collection install community.grafana` command to install grafana community package for ansible
+ 8. Clone the repository `git clone https://github.com/sarithekanayake/observability_stack.git` to home dir in ec2-user
+ 9. Navigate to applications directory under observability_stack repo `cd applications` 
+ 10. Edit inventory file and update the private IPs of servers `vim inventory`. Add Monitoring server IP to monitoring block. Add one of Worker Node IP to server1 and remaining one to server2 block.
+ 11. Save the changes and exit `Press [ESC] and type :wq!`
+ 12. Run the Ansible playbook replacing Slack URL `ansible-playbook apps.yml -e webhook_url=<Slack Webhook URL>`
 
 **Example**
 
